@@ -28,7 +28,7 @@ MainWindow::MainWindow(QWidget *parent)
     videoreader::videoReaderState vrState;
     int64_t pts;
 
-    if(!videoreader::videoReaderOpen(&vrState,"C:/Users/Adam/Downloads/RyiH6uXhuod0bkFP.mp4")){
+    if(!videoreader::videoReaderOpen(&vrState,"C:/Users/Adam/Downloads/skies.mp4")){
         printf("could not open video file\n");
         //ui->label_image->setText("could not load video frame");
     }

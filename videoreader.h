@@ -52,6 +52,7 @@ public:
 
     static bool videoReaderOpen(videoReaderState* state, const char* filename);
     bool videoReaderReadFrame(videoReaderState* state, uint8_t* frameBuffer, int64_t* pts);
+    bool videoReaderSeekFrame(videoReaderState* state, int64_t timestamp, int rel);
     static void videoReaderClose(videoReaderState* state);
 
     void doSetup(QThread &cThread, int64_t pts);

@@ -146,8 +146,10 @@ bool videoreader::videoReaderReadFrame(videoReaderState* state, uint8_t* frameBu
 
     int responce;
     while(av_read_frame(vrState.formatContext,vrState.packet) >= 0){
-        if(vrState.packet->stream_index != vrState.index)
+        if(vrState.packet->stream_index != vrState.index){
+            av_packet_unref(vrState.packet);
             continue;
+        }
        responce = avcodec_send_packet(vrState.codecContext,vrState.packet);
         if(responce<0){
             qDebug("Failed to decode packet\n");
@@ -155,6 +157,7 @@ bool videoreader::videoReaderReadFrame(videoReaderState* state, uint8_t* frameBu
         }
         responce = avcodec_receive_frame(vrState.codecContext,vrState.frame);
         if(responce == AVERROR(EAGAIN) || responce == AVERROR(EOF)){
+            av_packet_unref(vrState.packet);
             continue;
         }else if(responce < 0){
 
@@ -209,10 +212,11 @@ bool videoreader::videoReaderReadFrame(videoReaderState* state, uint8_t* frameBu
         firstFrame = true;
     }
 
+
     //qDebug("time:%lldms\n", time.elapsed() );
-    double pts_time = vrState.frame->pts * vrState.timeBase.num  / vrState.timeBase.den;
+    double pts_time = vrState.frame->pts * (double)vrState.timeBase.num  / (double)vrState.timeBase.den;
     // second to show = pts / timbase
-    //qDebug("frameTime:%fs\n", pts_time);
+    qDebug("frameTime:%fs\n", pts_time);
 
 
     //double sleepTime = pts_time*1000 - (time.elapsed());
@@ -224,14 +228,55 @@ bool videoreader::videoReaderReadFrame(videoReaderState* state, uint8_t* frameBu
 
     qDebug("emmit frame now at time:%lldms\n", time.elapsed());
     emit videoreader::newFrame(frameBuffer);
+    QThread::msleep(10);
     double sleepTime = pts_time*1000 - (time.elapsed());
     if(sleepTime > 0)
-        QThread::msleep(sleepTime);
+        qDebug("sleep for :%fms",sleepTime);
+        //QThread::msleep(sleepTime);
 
     return true;
 
 
 
+}
+
+//int64_t seekPos = ((theFrameIndex/self.frameRate) * 1000000);
+
+bool videoreader::videoReaderSeekFrame(videoReaderState *state, int64_t timestamp, int rel)
+{
+    //avformat_seek_file(vrState.formatContext,vrState.index,timestamp,timestamp,timestamp,AVSEEK_FLAG_BACKWARD);
+
+    av_seek_frame(vrState.formatContext,vrState.index,timestamp,rel);
+    avcodec_flush_buffers(vrState.codecContext);
+
+/*
+    int responce;
+    while(av_read_frame(vrState.formatContext,vrState.packet) >= 0){
+        if(vrState.packet->stream_index != vrState.index){
+            av_packet_unref(vrState.packet);
+            continue;
+        }
+       responce = avcodec_send_packet(vrState.codecContext,vrState.packet);
+        if(responce<0){
+            qDebug("Failed to decode packet\n");
+            return false;
+        }
+        responce = avcodec_receive_frame(vrState.codecContext,vrState.frame);
+        if(responce == AVERROR(EAGAIN) || responce == AVERROR(EOF)){
+            av_packet_unref(vrState.packet);
+            continue;
+        }else if(responce < 0){
+
+            qDebug("Failed to decode packet: %s \n", av_make_error(responce));
+            return false;
+        }
+        av_packet_unref(vrState.packet);
+        break;
+
+    }
+
+*/
+    return true;
 }
 void videoreader::videoReaderClose(videoReaderState* state){
 
@@ -247,10 +292,16 @@ void videoreader::videoReaderClose(videoReaderState* state){
 void videoreader::doWork(){
         qDebug("do work");
         //time.start();
-        while(true){
-            videoreader::videoReaderReadFrame(&vrState, vrState.imageBuffer,&vrState.pts);
-            //QThread::msleep(1);
-        }
+        videoreader::videoReaderSeekFrame(&vrState, 30 * ((double)vrState.timeBase.den / (double )vrState.timeBase.num  ),0 );
+        videoreader::videoReaderReadFrame(&vrState, vrState.imageBuffer,&vrState.pts);
+        QThread::msleep(2000);
+        videoreader::videoReaderSeekFrame(&vrState,(double)(9.5 * ((double)vrState.timeBase.den / (double )vrState.timeBase.num )),AVSEEK_FLAG_ANY);
+        videoreader::videoReaderReadFrame(&vrState, vrState.imageBuffer,&vrState.pts);
+        //while(true){
+
+           //videoreader::videoReaderReadFrame(&vrState, vrState.imageBuffer,&vrState.pts);
+            //QThread::msleep(10);
+       // }
 
 
 }
