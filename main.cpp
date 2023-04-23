@@ -1,8 +1,7 @@
 #include "mainwindow.h"
 
 #include <QApplication>
-#include <videoreader.h>
-#include "videoreader.h"
+#include "Core/videoreader.h"
 #include <QThread>
 
 int main(int argc, char *argv[])

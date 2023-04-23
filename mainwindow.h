@@ -2,7 +2,8 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include "videoreader.h"
+//#include "Core\videoreader.h"
+#include "timelinecontroller.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -20,9 +21,11 @@ public:
 private:
     Ui::MainWindow *ui;
     QPixmap pix;
-    videoreader vr;
-    QThread decoderThread;
-    QThread testThread;
+    TimelineController* m_controller = nullptr;
+
+    //videoreader vr;
+    //QThread decoderThread;
+    //QThread testThread;
 
 private slots:
     void updateRender(uint8_t* frameData);

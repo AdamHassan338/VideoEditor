@@ -1,49 +1,51 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include <QPixmap>
-#include "loadFrame.h"
-#include "videoreader.h"
+//#include "loadFrame.h"
+#include "Core/videoreader.h"
 #include <QThread>
 #include <qtimer.h>
 
 //8bit RGB image EACH channel has 8bits as range is 0-255, 8+8+8 so a total of 24bits
 //c++ arrays using bytes, 1 byte = 8 bits
 
-
+int frameWidth = 640,frameHeight = 352;
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-
+    ui->label_image->init(500,500);
+    m_controller = new TimelineController(this,ui->timelineWidget);
     //vr = videoreader();
-    connect(&vr,&videoreader::newFrame,this,&MainWindow::updateRender);
+    //connect(&vr,&videoreader::newFrame,this,&MainWindow::updateRender);
+    connect(m_controller,&TimelineController::updateSignal,ui->label_image,&Viewer::updateViewer);
 
 
-    int frameWidth,frameHeight;
     unsigned char* data;
 
     uint8_t* frameData;
-    videoreader::videoReaderState vrState;
+    //videoreader::videoReaderState vrState;
     int64_t pts;
 
-    if(!videoreader::videoReaderOpen(&vrState,"C:/Users/Adam/Downloads/skies.mp4")){
+    /*
+    if(!videoreader::videoReaderOpen(&vrState,"C:/Users/Adam/Downloads/jDDJHxQTMYdNYnVf.mp4")){
         printf("could not open video file\n");
         //ui->label_image->setText("could not load video frame");
-    }
-    frameWidth = vrState.width;
-    frameHeight = vrState.height;
-    pix = QPixmap(frameWidth,frameHeight);
+    }*/
+    //frameWidth = vrState.width;
+    //frameHeight = vrState.height;
+    //pix = QPixmap(frameWidth,frameHeight);
     //frameData = new uint8_t[vrState.width * vrState.height * 4];//RGBA
-
+    /*
     vr.setState(vrState);
     vr.doSetup(decoderThread, pts);
     vr.moveToThread(&decoderThread);
     decoderThread.start();
     //testThread.start();
     qDebug("not in the thing");
-
+    */
 
 
 
@@ -51,7 +53,9 @@ MainWindow::MainWindow(QWidget *parent)
 }
 
 void MainWindow::updateRender(uint8_t* frameData){
-    qDebug("we did it");
+    //qDebug("we did it");
+
+    pix = QPixmap(frameWidth,frameHeight);
     QImage imageBuffer = QImage(pix.toImage());
     QRgb value;
     for(int x = 0; x<pix.width(); ++x){
@@ -61,16 +65,18 @@ void MainWindow::updateRender(uint8_t* frameData){
             imageBuffer.setPixel(x,y,value);
         }
     }
+    endloop:
     pix=QPixmap::fromImage(imageBuffer);
+    //pix = pix.scaled(this->width(),this->height(),Qt::KeepAspectRatio,Qt::SmoothTransformation);
     //pix=QPixmap::fromImage(QImage(data, frameWidth, frameHeight, QImage::Format_RGB888));
-    ui->label_image->setPixmap(pix);
+    //ui->label_image->setPixmap(pix);
 
 }
 
 
 MainWindow::~MainWindow()
 {
-    decoderThread.quit();
+    //decoderThread.quit();
     delete ui;
 
 }

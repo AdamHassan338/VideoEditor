@@ -3,6 +3,9 @@ extern "C" {
 #include <libavformat/avformat.h>
 #include <inttypes.h>
 #include <libswscale/swscale.h>
+#include <libavutil/avutil.h>
+#include <libavutil/hwcontext.h>
+#include <libavutil/opt.h>
 }
 #include <QObject>
 #include <QThread>
@@ -19,12 +22,13 @@ private:
     static const char* av_make_error(int errnum);
     QElapsedTimer time;
     bool firstFrame = false;
+    int m_timestamp;
 
 
 
 public:
     struct videoReaderState {
-        //public things for other parts of program to read from
+        //video
         int width;
         int height;
         AVRational timeBase;
@@ -34,38 +38,50 @@ public:
         //uint8_t frameBuffer;
 
 
-        //private internal
+        //ffmpeg
         AVFormatContext* formatContext;
         AVCodecContext* codecContext;
         int index;
         AVFrame* frame;
+        AVFrame* Hwframe;
         AVPacket* packet;
         SwsContext* scalerContext;
+        AVHWDeviceType hw_device_type = AV_HWDEVICE_TYPE_DXVA2;
+        AVBufferRef* hw_device_ctx = nullptr;
+
+
 
     };
 
 
 
     explicit videoreader(QObject* parent = 0);
+    ~videoreader();
     void run();
     bool stop();
 
-    static bool videoReaderOpen(videoReaderState* state, const char* filename);
-    bool videoReaderReadFrame(videoReaderState* state, uint8_t* frameBuffer, int64_t* pts);
-    bool videoReaderSeekFrame(videoReaderState* state, int64_t timestamp, int rel);
-    static void videoReaderClose(videoReaderState* state);
+    bool videoReaderOpen(const char* filename);
+    bool videoReaderReadFrame(uint8_t* frameBuffer, int64_t* pts);
+    bool videoReaderSeekFrame(int64_t timestamp, int rel);
+    void videoReaderClose();
+
+    void initializeScaler();
 
     void doSetup(QThread &cThread, int64_t pts);
     void setState(videoReaderState state);
+    void setFrame(uint frameNumber);
+
+    videoReaderState* getState() const;
 
 signals:
-    uint8_t newFrame(uint8_t* frameBuffer);
+    uint8_t newFrame(uint8_t* frameBuffer, int width, int height);
 
 public slots:
     void doWork();
+    //void seekFrame(uint frameNumber);
 
 private:
-    videoReaderState vrState;
+    videoReaderState* state = new videoReaderState();
 };
 /*
 
