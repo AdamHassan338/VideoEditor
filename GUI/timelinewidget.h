@@ -21,16 +21,23 @@ public:
     TimelineWidget(QWidget *parent = nullptr);
     double currentTime();
     int currentFrame();
-
+    void moveToStart();
     int frameUnderPlayehead();
+    void moveFrame();
+    void render();
 
     ~TimelineWidget();
+
+    void setRendering(bool newRendering);
+
+    bool getRendering();
 
 private  slots:
     void addTrack(int x);
     void addClip(QString filename,int frames,double framerate,int track,int x);
     void underPlayhead();
     int getFrame(ClipRect* clip);
+
 private:
     Ui::TimelineWidget *ui;
     TimelineScene* scene;
@@ -39,6 +46,9 @@ private:
     std::vector<TrackRect*> trackRects;
     std::vector<ClipRect*> clipRects;
     qreal playheadPos;
+    bool rendering= false;
+
+
 
 
 
@@ -49,7 +59,9 @@ private:
 
 signals:
     void seekFrame(VideoFile* video,uint frameNumber);
+    void renderFrame(VideoFile* video,uint frameNumber);
     void emptyFrame();
+    void renderEmptyFrame();
 
 
 

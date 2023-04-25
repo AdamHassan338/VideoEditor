@@ -15,20 +15,14 @@ class MainWindow : public QMainWindow
 
 public:
     MainWindow(QWidget *parent = nullptr);
-    void updateVideo();
+
     ~MainWindow();
 
 private:
     Ui::MainWindow *ui;
-    QPixmap pix;
+
     TimelineController* m_controller = nullptr;
 
-    //videoreader vr;
-    //QThread decoderThread;
-    //QThread testThread;
-
-private slots:
-    void updateRender(uint8_t* frameData);
 
 };
 #endif // MAINWINDOW_H

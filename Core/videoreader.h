@@ -20,9 +20,10 @@ private:
 
 
     static const char* av_make_error(int errnum);
-    QElapsedTimer time;
+
     bool firstFrame = false;
     int m_timestamp;
+    int64_t m_lastpts = 0;
 
 
 
@@ -60,15 +61,14 @@ public:
     void run();
     bool stop();
 
-    bool videoReaderOpen(const char* filename);
-    bool videoReaderReadFrame(uint8_t* frameBuffer, int64_t* pts);
-    bool videoReaderSeekFrame(int64_t timestamp, int rel);
+    void videoReaderOpen(const char* filename);
+    void videoReaderReadFrame(uint8_t* frameBuffer, int64_t* pts);
+    void videoReaderSeekFrame(int64_t timestamp, int option);
     void videoReaderClose();
 
     void initializeScaler();
 
     void doSetup(QThread &cThread, int64_t pts);
-    void setState(videoReaderState state);
     void setFrame(uint frameNumber);
 
     videoReaderState* getState() const;
@@ -83,34 +83,6 @@ public slots:
 private:
     videoReaderState* state = new videoReaderState();
 };
-/*
-
-struct videoReaderState {
-    //public things for other parts of program to read from
-    int width;
-    int height;
-    AVRational timeBase;
-
-    //uint8_t frameBuffer;
-
-
-    //private internal
-    AVFormatContext* formatContext;
-    AVCodecContext* codecContext;
-    int index;
-    AVFrame* frame;
-    AVPacket* packet;
-    SwsContext* scalerContext;
-
-};
-
-
-bool videoReaderOpen(videoReaderState* state, const char* filename);
-bool videoReaderReadFrame(videoReaderState* state, uint8_t* frameBuffer, int64_t* pts);
-void videoReaderClose(videoReaderState* state);
-
-*/
-
 
 
 #endif // VIDEOREADER_H

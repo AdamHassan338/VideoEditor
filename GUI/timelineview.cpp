@@ -142,20 +142,20 @@ void TimelineView::scrollIfNecessary()
     int dx = 0;
     int dy = 0;
 
-    if (m_lastDragPos.x() < margin)
+    if (m_lastDragPos.x() < margin)//move left if close
     {
         dx = -stepSize;
     }
-    else if (m_lastDragPos.x() > width() - margin)
+    else if (m_lastDragPos.x() > width() - margin)//move right if close
     {
         dx = stepSize;
     }
 
-    if (m_lastDragPos.y() < margin)
+    if (m_lastDragPos.y() < margin)//move down if close
     {
         dy = -stepSize;
     }
-    else if (m_lastDragPos.y() > height() - margin)
+    else if (m_lastDragPos.y() > height() - margin)//move up if close
     {
         dy = stepSize;
     }

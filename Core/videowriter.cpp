@@ -10,11 +10,7 @@ videoWriter::videoWriter(QObject *parent)
     : QObject{parent}
 {
 
-    codec =  (AVCodec *)avcodec_find_encoder(AV_CODEC_ID_H264);
-    if (!codec) {
-        fprintf(stderr, "codec not found\n");
-
-    }
+    codec = (AVCodec *)avcodec_find_encoder(AV_CODEC_ID_H264);
 }
 
 void videoWriter::setup(const char* filename)
@@ -23,13 +19,13 @@ void videoWriter::setup(const char* filename)
     m_filename = filename;
     codecContext = avcodec_alloc_context3(codec);
     frame = av_frame_alloc();
-
+    rgbaFrame = av_frame_alloc();
 
     codecContext->bit_rate = 350000;
-    codecContext->width = 500;
-    codecContext->height = 500;
+    codecContext->width = 960;
+    codecContext->height = 540;
 
-    frameBuffer = new uint8_t[codecContext->width * codecContext->height * 3];
+
 
     codecContext->time_base = (AVRational){1,30};
     codecContext->framerate = (AVRational){30,1};
@@ -88,10 +84,6 @@ void videoWriter::setup(const char* filename)
 
     }
 
-    size = codecContext->width * codecContext->height;
-
-
-
 }
 
 
@@ -112,41 +104,33 @@ void videoWriter::encodeFrame(uint8_t *image)
     rgba2frame(image,rgbaFrame,rgbaFrame->width,rgbaFrame->height);
     sws_scale(scalerContext,frame->data,frame->linesize,0,frame->height,frame->data,frame->linesize);
 
-    if (frame)
-            printf("Send frame %3" PRId64 "\n", frame->pts);
 
-        ret = avcodec_send_frame(codecContext, frame);
-        if (ret < 0) {
-            fprintf(stderr, "Error sending a frame for encoding\n");
-            exit(1);
+    if (avcodec_send_frame(codecContext, frame) < 0) {
+        qDebug("Error sending a frame for encoding\n");
+
+    }
+
+    while (ret >= 0) {
+        ret = avcodec_receive_packet(codecContext, packet);
+        if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF)
+            return;
+        else if (ret < 0) {
+            qDebug() << "Error encoding to packet\n";
         }
-
-        while (ret >= 0) {
-            ret = avcodec_receive_packet(codecContext, packet);
-            if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF)
-                return;
-            else if (ret < 0) {
-                fprintf(stderr, "Error during encoding\n");
-                exit(1);
-            }
-
-            printf("Write packet %3" PRId64" (size=%5d)\n", packet->pts, packet->size);
-            fwrite(packet->data, 1, packet->size, file);
-            av_packet_unref(packet);
-        }
+        fwrite(packet->data, 1, packet->size, file);
+        av_packet_unref(packet);
+    }
 
 }
 
 void videoWriter::endFile()
 {
 
-    //encodeFrame(NULL);
-
     fclose(file);
 
-        avcodec_free_context(&codecContext);
-        av_frame_free(&frame);
-        av_packet_free(&packet);
+    avcodec_free_context(&codecContext);
+    av_frame_free(&frame);
+    av_packet_free(&packet);
 
 }
 

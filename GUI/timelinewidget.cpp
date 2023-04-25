@@ -61,18 +61,7 @@ TimelineWidget::TimelineWidget(QWidget *parent)
     connect(view,&TimelineView::newClip,this,&TimelineWidget::addClip);
     connect(Playhead::handler,&PlayheadHandler::playheadMoved,this,&TimelineWidget::underPlayhead);
 
-/*
-    ClipRect* clip2 = new ClipRect();
-    clip2->setRect(0,0,100,clipHeight);
 
-    clip2->setPos(5.5,trackHeight*1);
-    clipRects.push_back(clip);
-    scene->addItem(clip2);
-    TrackRect* track2 = new TrackRect(0,0,view->mapToScene(view->width(),0).x()-1,trackHeight);
-    track2->setPos(0,trackHeight*1);
-    trackRects.push_back(track);
-    scene->addItem(track2);
-*/
 
     TrackRect* track = new TrackRect(0,0,scene->width()-1,trackHeight);
     trackRects.push_back(track);
@@ -155,13 +144,48 @@ int TimelineWidget::getFrame(ClipRect* clip)
     //deocder emits the frame to video object,
     //video object returns it to clip.
 
+
+
     emit seekFrame(clip->video(),f);
+
 
     return f;
 }
 
+bool TimelineWidget::getRendering()
+{
+    return rendering;
+}
+
+void TimelineWidget::setRendering(bool newRendering)
+{
+    rendering = newRendering;
+
+}
+
+void TimelineWidget::moveToStart()
+{
+    playhead->setPos(1,0);
+}
+
+void TimelineWidget::moveFrame()
+{
+    if(playhead->pos().x()< scene->itemsBoundingRect().width() -1.0){
+        playhead->moveBy(1.0,0.0);
+    }else{
+        rendering = false;
+    }
+
+}
+
+void TimelineWidget::render()
+{
+    underPlayhead();
+}
+
 void TimelineWidget::addClip(QString filename,int frames,double framerate, int track, int x)
 {
+    Q_UNUSED(frames);Q_UNUSED(framerate);
     ClipRect* clip = new ClipRect(filename);
     double length = (clip->frames()-1) * scaleFactor /clip->framerate();
     clip->setFramerate(clip->framerate());
@@ -194,9 +218,12 @@ void TimelineWidget::mousePressEvent(QMouseEvent *event)
        if(item->contains(scenePoint)){
        }
        else{
+           QPointF last = playhead->pos();
            playhead->updatePos(scenePoint);
            m_playheadPressed = true;
+           if(last != playhead->pos())
            underPlayhead();
+
        }
    }
 
@@ -221,6 +248,7 @@ void TimelineWidget::mouseMoveEvent(QMouseEvent *event)
 
 void TimelineWidget::keyPressEvent(QKeyEvent *event)
 {
+    Q_UNUSED(event);
     //25pixles in 30frams
     //1 frame = 30/30 =
     playhead->setX(playhead->x()+ (float)((float)30/(float)30));

@@ -32,7 +32,7 @@ VideoFile::VideoFile(std::string location, QObject* parent) : QObject{parent}, m
     m_duration = (double)stream->duration * (double)((double)m_decoder.getState()->timeBase.num/(double)m_decoder.getState()->timeBase.den);
     int a = 2;
     connect(&m_decodeThread,SIGNAL(started()),&m_decoder,SLOT(doWork()));
-    connect(&m_decoder,&videoreader::newFrame,this,&VideoFile::backToMain);
+    //connect(&m_decoder,&videoreader::newFrame,this,&VideoFile::backToMain);
     m_decoder.moveToThread(&m_decodeThread);
 
 

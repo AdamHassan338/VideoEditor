@@ -21,14 +21,16 @@ public:
 
 signals:
     uint8_t updateSignal(uint8_t* frameBuffer, int width, int height);
+    uint8_t encodeSignal(uint8_t* frameBuffer);
     void updateBlankSignal();
-private slots:
+public slots:
     //void onTimelinePositionChanged(int position);
     //void onVideoSelectionChanged(int videoIndex);
     //void onVideoFrameDecoded(QImage frame);
     void seekFrame(VideoFile* video,uint frameNumber);
     void updateRender(uint8_t* frameData, int width, int height);
     void updateRenderBlank();
+    void startRender();
 
 private:
     QMainWindow* m_mainwindow;
@@ -38,6 +40,8 @@ private:
     VideoFile* m_currentVideoFile;
     uint m_currentFrame;
     videoWriter* encoder;
+
+    void moveToStart();
 
 
 };

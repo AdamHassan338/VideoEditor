@@ -24,14 +24,13 @@ void Viewer::updateViewer(uint8_t *frameData, int width, int height)
     QRgb value;
     for(int x = 0; x<pix.width(); ++x){
         for(int y = 0; y<pix.height(); ++y){
-            //imageBuffer.setPixel(x,y,qRgb(255,0,0));
             value = qRgba(frameData[y * pix.width() * 4 + x * 4],frameData[y * pix.width() * 4 + x *4 + 1],frameData[y * pix.width() * 4 + x *4 + 2],0);
             imageBuffer.setPixel(x,y,value);
         }
     }
 
     //endloop:
-    //pix=QPixmap::fromImage(imageBuffer);
+
 
     QImage scaled = imageBuffer.scaled(m_width,m_height, Qt::IgnoreAspectRatio);
 
