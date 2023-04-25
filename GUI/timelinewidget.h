@@ -49,6 +49,7 @@ private:
 
 signals:
     void seekFrame(VideoFile* video,uint frameNumber);
+    void emptyFrame();
 
 
 

@@ -116,6 +116,9 @@ void TimelineWidget::underPlayhead()
     if(lastItem){
         qDebug() << "Frame: "<<getFrame(lastItem) <<"Of "<<lastItem->getName();
 
+    }else{
+        qDebug() << "no clips";
+        emit emptyFrame();
     }
 
 }

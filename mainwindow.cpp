@@ -9,18 +9,20 @@
 //8bit RGB image EACH channel has 8bits as range is 0-255, 8+8+8 so a total of 24bits
 //c++ arrays using bytes, 1 byte = 8 bits
 
-int frameWidth = 640,frameHeight = 352;
+int frameWidth = 960,frameHeight = 540;
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    ui->label_image->init(500,500);
+    ui->label_image->init(960,540);
     m_controller = new TimelineController(this,ui->timelineWidget);
     //vr = videoreader();
     //connect(&vr,&videoreader::newFrame,this,&MainWindow::updateRender);
     connect(m_controller,&TimelineController::updateSignal,ui->label_image,&Viewer::updateViewer);
+    connect(m_controller,&TimelineController::updateBlankSignal,ui->label_image,&Viewer::updateViewerBlank);
+
 
 
     unsigned char* data;

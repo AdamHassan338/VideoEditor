@@ -112,20 +112,32 @@
      <height>26</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>File</string>
+    </property>
+    <addaction name="actionExport"/>
+   </widget>
+   <addaction name="menuFile"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionExport">
+   <property name="text">
+    <string>Export</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
    <class>TimelineWidget</class>
    <extends>QWidget</extends>
-   <header>timelinewidget.h</header>
+   <header>GUI/timelinewidget.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>Viewer</class>
    <extends>QLabel</extends>
-   <header>viewer.h</header>
+   <header>GUI/viewer.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

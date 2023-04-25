@@ -1,10 +1,7 @@
 #include "videoreader.h"
 #include <QDebug>
 #include <QThread>
-/*
-CHANGE INDEX TO VIDOE STREAM INDEX
 
-*/
 const char* videoreader::av_make_error(int errnum) {
     static char str[AV_ERROR_MAX_STRING_SIZE];
     memset(str, 0, sizeof(str));
@@ -106,7 +103,7 @@ bool videoreader::videoReaderOpen(const char* filename){
         return false;
     }
     //set the hardware deivce
-    state->codecContext->hw_device_ctx = av_buffer_ref(state->hw_device_ctx);
+    //state->codecContext->hw_device_ctx = av_buffer_ref(state->hw_device_ctx);
 
 
 
@@ -127,7 +124,7 @@ bool videoreader::videoReaderOpen(const char* filename){
     packet = av_packet_alloc();
     frame = av_frame_alloc();
 
-    Hwframe = av_frame_alloc();
+    //Hwframe = av_frame_alloc();
     if(!frame){
         qDebug("err could not allocate AVFrame\n");
         return false;
@@ -135,7 +132,7 @@ bool videoreader::videoReaderOpen(const char* filename){
 
     if(!Hwframe){
         qDebug("err could not allocate Hw AVFrame\n");
-        return false;
+        //return false;
     }
 
     if(!packet){
@@ -168,7 +165,7 @@ bool videoreader::videoReaderReadFrame(uint8_t* frameBuffer, int64_t* pts){
             return false;
         }
 
-        responce = avcodec_receive_frame(state->codecContext,state->Hwframe);
+        responce = avcodec_receive_frame(state->codecContext,state->frame);
 
         if(responce == AVERROR(EAGAIN) || responce == AVERROR(EOF)){
 
@@ -176,10 +173,10 @@ bool videoreader::videoReaderReadFrame(uint8_t* frameBuffer, int64_t* pts){
             continue;
         }
 
-        else if (state->Hwframe->best_effort_timestamp == m_timestamp) {
+        else if (state->frame->best_effort_timestamp == m_timestamp) {
             found = true;
 
-            av_hwframe_transfer_data(state->frame, state->Hwframe, 0);
+            //av_hwframe_transfer_data(state->frame, state->Hwframe, 0);
 
             av_packet_unref(state->packet);
             //state->frame = state->Hwframe;
@@ -283,7 +280,7 @@ void videoreader::videoReaderClose(){
 void videoreader::initializeScaler()
 {
 
-    state->scalerContext = sws_getContext(state->width, state->height, static_cast<AVPixelFormat>(state->Hwframe->format),
+    state->scalerContext = sws_getContext(state->width, state->height, static_cast<AVPixelFormat>(state->frame->format),
                                     state->width, state->height, AV_PIX_FMT_RGB0,
                                     SWS_BILINEAR, NULL, NULL, NULL);
 

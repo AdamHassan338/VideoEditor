@@ -9,6 +9,7 @@
 #include "GUI/timelinewidget.h"
 #include "Core/videofile.h"
 #include "qlabel.h"
+#include "Core/videowriter.h"
 
 class TimelineController : public QObject
 {
@@ -20,13 +21,14 @@ public:
 
 signals:
     uint8_t updateSignal(uint8_t* frameBuffer, int width, int height);
-
+    void updateBlankSignal();
 private slots:
     //void onTimelinePositionChanged(int position);
     //void onVideoSelectionChanged(int videoIndex);
     //void onVideoFrameDecoded(QImage frame);
     void seekFrame(VideoFile* video,uint frameNumber);
     void updateRender(uint8_t* frameData, int width, int height);
+    void updateRenderBlank();
 
 private:
     QMainWindow* m_mainwindow;
@@ -35,6 +37,8 @@ private:
     //QMap<int, VideoFile*> m_videoFiles;
     VideoFile* m_currentVideoFile;
     uint m_currentFrame;
+    videoWriter* encoder;
+
 
 };
 

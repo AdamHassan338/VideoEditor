@@ -11,6 +11,7 @@ TimelineController::TimelineController(QMainWindow *mainwindow, TimelineWidget *
     m_mainwindow = mainwindow;
     m_timelineWidget = timelineWidget;
     connect(m_timelineWidget,&TimelineWidget::seekFrame,this,&TimelineController::seekFrame);
+    connect(m_timelineWidget,&TimelineWidget::emptyFrame,this,&TimelineController::updateRenderBlank);
 }
 
 void TimelineController::seekFrame(VideoFile *video, uint frameNumber)
@@ -27,4 +28,9 @@ void TimelineController::updateRender(uint8_t* frameData, int width, int height)
 {
     //qDebug() << "controler update";
     emit updateSignal(frameData, width, height);
+}
+
+void TimelineController::updateRenderBlank()
+{
+    emit updateBlankSignal();
 }
